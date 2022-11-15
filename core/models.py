@@ -6,3 +6,4 @@ from django.utils.translation import gettext_lazy as _
 
 class User(AbstractUser):
     email = models.EmailField(_("email address"), unique=True)
+    image = models.ImageField(upload_to='media/images/users/', default='media/images/users/default.png')
