@@ -15,6 +15,7 @@ class Shelve(models.Model):
     is_active = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    image = models.ImageField(upload_to='media/images/shelves', default='media/images/default.jpg')
 
 
     class Meta:
@@ -27,8 +28,3 @@ class Shelve(models.Model):
         if not self.slug:
             self.slug = slugify(self.name)
         return super(Shelve, self).save(*args, **kwargs)
-
-
-class shelveImage(models.Model):
-    image = models.ImageField(upload_to='media/images/shelves', default='media/images/default.jpg')
-    shelve = models.OneToOneField(Shelve, on_delete=models.CASCADE)

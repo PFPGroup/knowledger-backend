@@ -26,11 +26,17 @@ class PageImage(models.Model):
     page = models.ManyToManyField(Page)
 
 
+class PageTag(models.Model):
+    name = models.CharField(max_length=15)
+    Page = models.ManyToManyField(Page)
+
+
 class Activity(models.Model):
     
     ACTIVITY_TYPE = (
-        (1, 'Book'),
-        (2, 'Page'),
+        (1, 'created'),
+        (2, 'updated'),
+        (3, 'deleted'),
     )
     
     user = models.ForeignKey(User, on_delete=models.CASCADE)
