@@ -44,9 +44,7 @@ INSTALLED_APPS = [
     'drf_spectacular',
     # Local apps
     'core',
-    'shelves',
-    'books',
-    'chapters',
+    'bookstack'
 ]
 
 MIDDLEWARE = [
