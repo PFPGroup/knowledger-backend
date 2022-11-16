@@ -84,6 +84,11 @@ class PageTag(models.Model):
     name = models.CharField(max_length=15)
     Page = models.ManyToManyField(Page)
 
+class PageReview(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    text = models.CharField(max_length=255)
+
 
 class Activity(models.Model):
     
