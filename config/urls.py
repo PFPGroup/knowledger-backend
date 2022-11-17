@@ -24,6 +24,8 @@ urlpatterns = [
     # Documentation
     path('api/schema/', SpectacularAPIView.as_view(), name='api-schema'),
     path('api/docs/', SpectacularSwaggerView.as_view(url_name='api-schema'), name='api-docs'),
-
+    # Reset Password
+    path('api/password_reset/', include('django_rest_passwordreset.urls', namespace='password_reset')),
+    # Main App urls
     path('', include('core.urls')),
 ]

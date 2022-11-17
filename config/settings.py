@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     # third party libraries
     'rest_framework',
     'rest_framework_simplejwt.token_blacklist',
+    'django_rest_passwordreset',
     'drf_spectacular',
     # Local apps
     'core',
@@ -133,6 +134,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'core.User'
 
 # authentication and JWT
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',

@@ -12,6 +12,7 @@ from .serializers import (
     CostumeTokenObtainPairSerializer, RegisterSerializer, ChangePasswordSerializer, UpdateUserSerializer, LogoutSerializer
 )
 from rest_framework import status
+
 # Create your views here.
 
 User = get_user_model()
