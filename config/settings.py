@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-8qp_^+57laa$u9)1q(onvaks22i%0t0s!lj@xra4wt1_7+_zaq
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 
 # Application definition
@@ -42,7 +42,9 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt.token_blacklist',
     'django_rest_passwordreset',
+    'taggit',
     'drf_spectacular',
+    "debug_toolbar",
     # Local apps
     'core',
     'bookstack'
@@ -56,6 +58,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # third party
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -120,6 +124,9 @@ USE_I18N = True
 
 USE_TZ = True
 
+INTERNAL_IPS = [
+    "127.0.0.1",
+]
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/

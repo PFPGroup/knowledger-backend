@@ -127,4 +127,3 @@ class LogoutSerializer(serializers.Serializer):
             RefreshToken(self.token).blacklist()
         except TokenError as e:
             raise serializers.ValidationError({'Error': 'Bad Request'})
-        

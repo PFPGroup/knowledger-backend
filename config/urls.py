@@ -18,6 +18,7 @@ from django.urls import path, include
 from drf_spectacular.views import (
     SpectacularAPIView, SpectacularSwaggerView
 )
+from .settings import DEBUG
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -27,5 +28,10 @@ urlpatterns = [
     # Reset Password
     path('api/password_reset/', include('django_rest_passwordreset.urls', namespace='password_reset')),
     # Main App urls
-    path('', include('core.urls')),
+    path('auth/', include('core.urls')),
+    path('bookstack/', include('bookstack.urls')),
 ]
+
+if DEBUG == True:
+    urlpatterns.append(
+        path('__debug__/', include('debug_toolbar.urls')))
