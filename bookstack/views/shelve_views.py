@@ -1,35 +1,69 @@
+from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.generics import (
-    ListAPIView, CreateAPIView,
-)
-
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.generics import ListAPIView
+from rest_framework.viewsets import ModelViewSet
+from rest_framework.response import Response
 from bookstack.models import (
-    Shelve,
+    Shelve, Activity
 )
-from bookstack.serializers import (
-    ShelveSerializer, NewShelveSerializer, CreateShelveSerializer
+from bookstack.serializers.shelve_serializers import (
+    ShelveSerializer, NewShelveSerializer, CreateUpdateShelveSerializer,
+    ShelveDetailSerializer, ShelveActivitySerializer,
 )
 
 # Create your views here.
 
 
 class StandardResultsSetPagination(PageNumberPagination):
-    page_size = 6
+    page_size = 9
     page_size_query_param = 'page_size'
 
 
-class ShelveView(ListAPIView):
+class ShelveViewset(ModelViewSet):
+    http_method_names = ['get', 'post', 'put', 'delete']
     queryset = Shelve.objects.all().prefetch_related('books')
-    serializer_class = ShelveSerializer
+    pagination_class = StandardResultsSetPagination
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+    lookup_field = 'slug'
+    extra_kwargs = {
+        'url': {'lookup_field': 'slug'},
+    }
+    
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        if not request.user == instance.creature:
+            return Response(
+                {'permission': 'permission denied'},
+                status=status.HTTP_406_NOT_ACCEPTABLE)
+        return super().update(request, *args, **kwargs)
+    
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = ShelveDetailSerializer(instance)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        if not request.user.id == instance.creature.id:
+            return Response(
+                {'permission': 'permission denied'},
+                status=status.HTTP_406_NOT_ACCEPTABLE)
+        return super().destroy(request, *args, **kwargs)
+    
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return ShelveSerializer
+        return CreateUpdateShelveSerializer
 
 
 class NewShelveView(ListAPIView):
-    queryset = Shelve.objects.all().values('name').order_by('created_at')
+    queryset = Shelve.objects.all().values('name','slug').order_by('-created_at')
     serializer_class = NewShelveSerializer
 
-
-class CreateShelveView(CreateAPIView):
-    model = Shelve
-    serializer_class = CreateShelveSerializer
-    permission_classes = (IsAuthenticated,)
+class ShelveActivityView(ListAPIView):
+    pagination_class = StandardResultsSetPagination
+    serializer_class = ShelveActivitySerializer
+    
+    def get_queryset(self):
+        return Activity.objects.filter(model_type=1)

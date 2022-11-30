@@ -33,7 +33,7 @@ urlpatterns = [
          include('django_rest_passwordreset.urls', namespace='password_reset')),
     # Main App urls
     path('auth/', include('core.urls')),
-    path('bookstack/', include('bookstack.urls')),
+    path('', include('bookstack.urls')),
 ]
 
 if DEBUG == True:

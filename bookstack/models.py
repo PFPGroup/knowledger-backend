@@ -66,7 +66,7 @@ class Book(models.Model):
 
 
 class Chapter(models.Model):
-    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+    book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='chapter')
     name = models.CharField(max_length=70)
     description = models.CharField(max_length=255, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -76,9 +76,9 @@ class Chapter(models.Model):
         
 
 class Page(models.Model):
-    chapter = models.ForeignKey(Chapter, on_delete=models.CASCADE)
+    chapter = models.ForeignKey(Chapter, on_delete=models.CASCADE, related_name='page')
     text = models.TextField()
-    slug = models.SlugField(unique=True, blank=True)
+    slug = models.SlugField(unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     tags = TaggableManager()
@@ -107,10 +107,19 @@ class Activity(models.Model):
         UPDATED = 2
         DELETED = 3
     
+    class ModelType(models.TextChoices):
+        SHELVE = 'shelve'
+        BOOK = 'book'
+        PAGE = 'page'
+    
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     activity = models.CharField(choices=ActivityType.choices, max_length=1)
+    model_type = models.CharField(choices=ModelType.choices, max_length=6)
     book = models.ForeignKey(Book, on_delete=models.CASCADE, null=True, blank=True)
+    Shelve = models.ForeignKey(Shelve, on_delete=models.CASCADE, null=True, blank=True)
     page = models.ForeignKey(Page, on_delete=models.CASCADE, null=True, blank=True)
+    name = models.CharField(max_length=150)
+    slug = models.SlugField(blank=False)
     created_at = models.DateTimeField(auto_now_add=True)
     
     class Meta:

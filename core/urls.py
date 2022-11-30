@@ -7,10 +7,10 @@ from .views import (
 
 
 urlpatterns = [
-    path('api/token/', CostumeTokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('api/logout/', LogoutView.as_view(), name='auth_logout'),
-    path('api/registeration/', RegisterView.as_view(), name='auth_register'),
-    path('api/updateuser/<int:pk>', UpdateUserView.as_view(), name='auth_update_profile'),
-    path('api/password/change/<int:pk>', ChangePasswordView.as_view(), name='auth_change_password'),
+    path('login/', CostumeTokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('logout/', LogoutView.as_view(), name='auth_logout'),
+    path('registeration/', RegisterView.as_view(), name='auth_register'),
+    path('updateuser/<int:pk>', UpdateUserView.as_view(), name='auth_update_profile'),
+    path('password/change/<int:pk>', ChangePasswordView.as_view(), name='auth_change_password'),
 ]

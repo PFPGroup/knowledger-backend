@@ -1,17 +1,27 @@
-from django.urls import path
-
-from .views.main_views import (
-    ActivityView, BookView, PageView,
+from django.urls import path, include
+from rest_framework import routers
+from .views.recent_views import (
+    ActivityView, RecentPageView, RecentBookView,
 )
 from .views.shelve_views import (
-    ShelveView, NewShelveView, CreateShelveView
+    ShelveViewset, NewShelveView, ShelveActivityView
+)
+from .views.book_views import (
+    BookActivityView, BookViewset
 )
 
+router = routers.DefaultRouter()
+router.register(r'books', BookViewset, basename='books')
+router.register(r'shelves', ShelveViewset, basename='shelves')
+
 urlpatterns = [
-    path('activityview/', ActivityView.as_view(), name='activityview'),
-    path('bookview/', BookView.as_view(), name='bookview'),
-    path('pageview/', PageView.as_view(), name='pageview'),
-    path('shelves/', ShelveView.as_view(), name='shelveview'),
-    path('newshelves/', NewShelveView.as_view(), name='newshelvesview'),
-    path('create_shelve/', CreateShelveView.as_view(), name='create_shelve')
+    path('', include(router.urls)),
+    # recent views
+    path('recent/activities/', ActivityView.as_view(), name='recent_activity'),
+    path('recent/books/', RecentBookView.as_view(), name='recent_bookview'),
+    path('recent/pages/', RecentPageView.as_view(), name='recent_pageview'),
+    path('recent/shelves/', NewShelveView.as_view(), name='recent_helves'),
+    path('recent/shelves-activity/', ShelveActivityView.as_view(), name='recent_shelveactivity'),
+    # book views
+    path('books/<slug:pk>/activity/', BookActivityView.as_view(), name='book_activity'),
 ]
