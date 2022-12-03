@@ -2,9 +2,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.generics import ListAPIView
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.permissions import (
-    IsAuthenticatedOrReadOnly,
-)
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from bookstack.serializers.book_serializers import (
     BooksSerializer, BookDetailSerializer, CreateUpdateBookSerializer,
     BookActivitySerializer,

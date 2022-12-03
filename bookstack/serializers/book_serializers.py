@@ -13,7 +13,7 @@ class BookChapterSerializer(serializers.ModelSerializer):
         
     class Meta:
         model = Chapter
-        fields = ('name', 'description')
+        fields = ('id', 'name', 'description')
 
 
 class BookDetailSerializer(TaggitSerializer, serializers.ModelSerializer):

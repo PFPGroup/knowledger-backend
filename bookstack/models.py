@@ -77,6 +77,7 @@ class Chapter(models.Model):
 
 class Page(models.Model):
     chapter = models.ForeignKey(Chapter, on_delete=models.CASCADE, related_name='page')
+    name = models.CharField(max_length=150, null=True) # in deployment change null to False
     text = models.TextField()
     slug = models.SlugField(unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
