@@ -19,6 +19,20 @@ class ChapterViewSet(ModelViewSet):
         serializer = self.get_serializer(instance)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
+    def update(self, request, *args, **kwargs):
+        authors = get_object_or_404(Book, slug=self.kwargs['book_slug']).authors.all()
+        if request.user in authors:
+            return super().update(request, *args, **kwargs)
+        else:
+            return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+    
+    def create(self, request, *args, **kwargs):
+        authors = get_object_or_404(Book, slug=self.kwargs['book_slug']).authors.all()
+        if request.user in authors:
+            return super().create(request, *args, **kwargs)
+        else:
+            return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
     def destroy(self, request, *args, **kwargs):
         book = get_object_or_404(Book, slug=self.kwargs['book_slug'])
         if not book.creature.id == request.user.id:

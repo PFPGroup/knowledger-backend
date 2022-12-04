@@ -19,7 +19,6 @@ class BookChapterSerializer(serializers.ModelSerializer):
 class BookDetailSerializer(TaggitSerializer, serializers.ModelSerializer):
     tags = TagListSerializerField()
     chapter = BookChapterSerializer(many=True)
-
     
     class Meta:
         model = Book
@@ -49,8 +48,8 @@ class CreateUpdateBookSerializer(TaggitSerializer, serializers.ModelSerializer):
         fields = ('authors', 'name', 'description', 'slug', 'image', 'tags', 'publish')
     
     def update(self, instance, validated_data):
-        book = get_object_or_404(Book, slug=instance.pk)
-        if self.context['user'] in book.authors:
+        book = get_object_or_404(Book, id=instance.pk)
+        if self.context['user'] == book.creature:
             return super().update(instance, validated_data)
         else:
             raise serializers.ValidationError(

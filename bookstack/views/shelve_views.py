@@ -21,7 +21,7 @@ class StandardResultsSetPagination(PageNumberPagination):
 
 
 class ShelveViewset(ModelViewSet):
-    http_method_names = ['get', 'post', 'put', 'delete']
+    http_method_names = ['get', 'post', 'patch', 'delete']
     queryset = Shelve.objects.all().prefetch_related('books')
     pagination_class = StandardResultsSetPagination
     permission_classes = (IsAuthenticatedOrReadOnly,)

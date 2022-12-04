@@ -29,19 +29,17 @@ class Shelve(models.Model):
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.name)
-        return super(Shelve, self).save(*args, **kwargs)
-    
-    def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = slugify(self.name)
         return super().save(*args, **kwargs)
+    
+    def __str__(self) -> str:
+        return self.name
 
 
 
 class Book(models.Model):
     shelve = models.ForeignKey(Shelve, on_delete=models.SET_NULL, null=True, related_name='books')
     creature = models.ForeignKey(User , on_delete=models.SET_NULL, null=True)
-    authors = models.ManyToManyField(User, related_name='authores')
+    authors = models.ManyToManyField(User, related_name='authors')
     name = models.CharField(max_length=25)
     publish = models.BooleanField(default=False)
     description = models.CharField(max_length=250)
@@ -62,6 +60,9 @@ class Book(models.Model):
         if not self.slug:
             self.slug = slugify(self.name)
         return super().save(*args, **kwargs)
+    
+    def __str__(self) -> str:
+        return self.name
 
 
 
@@ -73,7 +74,9 @@ class Chapter(models.Model):
     
     class Meta:
         ordering = ('-created_at',)
-        
+    
+    def __str__(self) -> str:
+        return self.name
 
 class Page(models.Model):
     chapter = models.ForeignKey(Chapter, on_delete=models.CASCADE, related_name='page')
