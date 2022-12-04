@@ -31,7 +31,7 @@ urlpatterns = [
     path('recent/pages/', RecentPageView.as_view(), name='recent_pageview'),
     path('recent/shelves/', NewShelveView.as_view(), name='recent_helves'),
     # activity views
-    path('recent/activities/', ActivityView.as_view(), name='recent_activity'),
-    path('recent/shelves-activity/', ShelveActivityView.as_view(), name='recent_shelveactivity'),
-    path('books/<slug:pk>/activity/', BookActivityView.as_view(), name='book_activity'),
+    path('activities/', ActivityView.as_view(), name='recent_activity'),
+    path('activities/shelves/', ShelveActivityView.as_view(), name='recent_shelveactivity'),
+    path('activities/book/<slug:pk>/', BookActivityView.as_view(), name='book_activity'),
 ]
