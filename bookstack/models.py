@@ -65,7 +65,6 @@ class Book(models.Model):
         return self.name
 
 
-
 class Chapter(models.Model):
     book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='chapter')
     name = models.CharField(max_length=70)
