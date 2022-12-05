@@ -35,7 +35,6 @@ class Shelve(models.Model):
         return self.name
 
 
-
 class Book(models.Model):
     shelve = models.ForeignKey(Shelve, on_delete=models.SET_NULL, null=True, related_name='books')
     creature = models.ForeignKey(User , on_delete=models.SET_NULL, null=True)
