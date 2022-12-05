@@ -1,4 +1,3 @@
-from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.generics import ListAPIView
@@ -39,17 +38,12 @@ class BookViewset(ModelViewSet):
         return Book.objects.filter(shelve__slug=self.kwargs['shelve_slug'])
 
     def get_serializer_class(self):
-        if not self.request.method == 'GET':
+        if self.action == 'create' or self.action == 'update':
             return CreateUpdateBookSerializer
-        return BooksSerializer
-
-    def get_serializer_context(self):
-        return {
-            'request': self.request,
-            'format': self.format_kwarg,
-            'view': self,
-            'user': self.request.user
-        }
+        elif self.action == 'retrieve':
+            return BookDetailSerializer
+        else:
+            return BooksSerializer
 
 
 class BookActivityView(ListAPIView):
