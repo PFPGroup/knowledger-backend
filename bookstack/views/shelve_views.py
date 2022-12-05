@@ -30,14 +30,6 @@ class ShelveViewset(ModelViewSet):
         'url': {'lookup_field': 'slug'},
     }
     
-    def update(self, request, *args, **kwargs):
-        instance = self.get_object()
-        if not request.user.id == instance.creature.id:
-            return Response(
-                {'permission': 'permission denied'},
-                status=status.HTTP_406_NOT_ACCEPTABLE)
-        return super().update(request, *args, **kwargs)
-    
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         if not request.user.id == instance.creature.id:
