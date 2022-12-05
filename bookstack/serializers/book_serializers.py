@@ -47,6 +47,10 @@ class CreateUpdateBookSerializer(TaggitSerializer, serializers.ModelSerializer):
         model = Book
         fields = ('authors', 'name', 'description', 'slug', 'image', 'tags', 'publish')
     
+    def create(self, validated_data):
+        validated_data['creature'] = self.context['request'].user
+        return super().create(validated_data)
+    
     def update(self, instance, validated_data):
         book = get_object_or_404(Book, id=instance.pk)
         if self.context['request'].user == book.creature:
