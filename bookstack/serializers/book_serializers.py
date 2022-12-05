@@ -53,7 +53,7 @@ class CreateUpdateBookSerializer(TaggitSerializer, serializers.ModelSerializer):
     
     def update(self, instance, validated_data):
         book = get_object_or_404(Book, id=instance.pk)
-        if self.context['request'].user == book.creature:
+        if self.context['request'].user.id == book.creature.id:
             return super().update(instance, validated_data)
         else:
             raise serializers.ValidationError(
