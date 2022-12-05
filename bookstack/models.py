@@ -48,7 +48,6 @@ class Book(models.Model):
     slug = models.SlugField(unique=True)
     image = models.ImageField(upload_to='media/images/books', default='media/images/default.jpg')
     tags = TaggableManager()
-
     
     class Meta:
         ordering = ('-name',)
