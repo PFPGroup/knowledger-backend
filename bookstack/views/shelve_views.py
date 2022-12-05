@@ -52,9 +52,12 @@ class ShelveViewset(ModelViewSet):
         return super().destroy(request, *args, **kwargs)
     
     def get_serializer_class(self):
-        if self.request.method == 'GET':
+        if self.action == 'update' or self.action == 'create':
+            return CreateUpdateShelveSerializer
+        elif self.action == 'retrieve':
+            return ShelveDetailSerializer
+        else:
             return ShelveSerializer
-        return CreateUpdateShelveSerializer
 
 
 class NewShelveView(ListAPIView):
