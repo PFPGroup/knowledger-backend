@@ -32,16 +32,11 @@ class ShelveViewset(ModelViewSet):
     
     def update(self, request, *args, **kwargs):
         instance = self.get_object()
-        if not request.user == instance.creature:
+        if not request.user.id == instance.creature.id:
             return Response(
                 {'permission': 'permission denied'},
                 status=status.HTTP_406_NOT_ACCEPTABLE)
         return super().update(request, *args, **kwargs)
-    
-    def retrieve(self, request, *args, **kwargs):
-        instance = self.get_object()
-        serializer = ShelveDetailSerializer(instance)
-        return Response(serializer.data, status=status.HTTP_200_OK)
     
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -63,6 +58,7 @@ class ShelveViewset(ModelViewSet):
 class NewShelveView(ListAPIView):
     queryset = Shelve.objects.all().values('name','slug').order_by('-created_at')
     serializer_class = NewShelveSerializer
+
 
 class ShelveActivityView(ListAPIView):
     pagination_class = StandardResultsSetPagination
