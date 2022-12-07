@@ -22,9 +22,6 @@ class Shelve(models.Model):
 
     class Meta:
         ordering = ('-name',)
-
-    def get_absolute_url(self):
-        return reverse("shelve-detail", kwargs={"pk": self.slug})
     
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -50,9 +47,6 @@ class Book(models.Model):
     
     class Meta:
         ordering = ('-name',)
-
-    def get_absolute_url(self):
-        return reverse("books-detail", kwargs={"pk": self.pk})
     
     def save(self, *args, **kwargs):
         if not self.slug:
