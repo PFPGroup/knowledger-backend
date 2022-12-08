@@ -10,6 +10,7 @@ from bookstack.views.book_views import (
     BookActivityView, BookViewset
 )
 from bookstack.views.chapter_views import ChapterViewSet
+from bookstack.views.page_views import PageViewset
 
 router = routers.DefaultRouter()
 router.register(r'shelves', ShelveViewset, basename='shelves')
@@ -20,12 +21,16 @@ books_router.register(r'books', BookViewset, basename='books')
 chapter_router = routers.NestedDefaultRouter(books_router, 'books', lookup='book' )
 chapter_router.register(r'chapter', ChapterViewSet, basename='chapter')
 
+page_router = routers.NestedDefaultRouter(chapter_router, 'chapter', lookup='chapter')
+page_router.register(r'page', PageViewset, basename='page')
+
 
 urlpatterns = [
     # nested routers
     path('', include(router.urls)),
     path('', include(books_router.urls)),
     path('', include(chapter_router.urls)),
+    path('', include(page_router.urls)),
     # recent views
     path('recent/books/', RecentBookView.as_view(), name='recent_bookview'),
     path('recent/pages/', RecentPageView.as_view(), name='recent_pageview'),
