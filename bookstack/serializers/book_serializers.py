@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
 from bookstack.models import (
-    Book, Chapter, Activity
+    Book, Chapter, Activity, Shelve
 )
 
 from taggit.serializers import (
@@ -48,7 +48,9 @@ class CreateUpdateBookSerializer(TaggitSerializer, serializers.ModelSerializer):
         fields = ('authors', 'name', 'description', 'slug', 'image', 'tags', 'publish')
     
     def create(self, validated_data):
+        shelve = get_object_or_404(Shelve, slug=self.context['shelve_slug'])
         validated_data['creature'] = self.context['request'].user
+        validated_data['shelve'] = shelve
         return super().create(validated_data)
     
     def update(self, instance, validated_data):

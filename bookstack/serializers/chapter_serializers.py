@@ -34,5 +34,5 @@ class CreateUpdateChapterSerializer(serializers.ModelSerializer):
     
     def create(self, validated_data):
         book = get_object_or_404(Book, slug=self.context['book_slug'])
-        book_id = book.id
-        return Chapter.objects.create(book=book, **validated_data)
+        validated_data['book'] = book
+        return super().create(validated_data)
