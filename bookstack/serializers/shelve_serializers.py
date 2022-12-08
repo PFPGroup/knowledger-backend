@@ -36,15 +36,21 @@ class CreateUpdateShelveSerializer(TaggitSerializer, serializers.ModelSerializer
         fields = ('name', 'description', 'image', 'tags')
 
     def create(self, validated_data):
-        validated_data['creature'] = self.context['request'].user
-        return super().create(validated_data)
+        user = self.context['request'].user
+        if user.is_staff:
+            validated_data['creature'] = user
+            return super().create(validated_data)
+        else:
+            raise serializers.ValidationError(
+                {'permission': "you don't have permission to do this."})
+
     
     def update(self, instance, validated_data):
         if self.context['request'].user.id == instance.creature.id:
             return super().update(instance, validated_data)
         else:
             raise serializers.ValidationError(
-                {'authurize': "you don't have permission to do this."})
+                {'permission': "you don't have permission to do this."})
 
 
 class BookSerializer(serializers.ModelSerializer):
