@@ -91,6 +91,7 @@ class PageImage(models.Model):
 
 class PageReview(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    page = models.ForeignKey(Page, on_delete=models.CASCADE, related_name='reviews', default=None) # remove the default in deployment
     created_at = models.DateTimeField(auto_now_add=True)
     text = models.CharField(max_length=255)
 
