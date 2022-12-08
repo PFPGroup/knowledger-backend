@@ -6,15 +6,19 @@ from taggit.serializers import (TaggitSerializer, TagListSerializerField)
 from bookstack.models import Page, PageReview, Book
 
 class PageReviewSerializer(serializers.ModelSerializer):
-
+    user = serializers.CharField(max_length=150)
+    
     class Meta:
         model = PageReview
-        fields = ('user', 'text', 'created_at')
+        fields = ('id', 'user', 'text', 'created_at')
+        
+        def get_user(self, obj):
+            return obj.name
 
 
 class PageSerializer(TaggitSerializer, serializers.ModelSerializer):
     tags = TagListSerializerField()
-    reviews = PageReviewSerializer
+    reviews = PageReviewSerializer(many=True)
     
     class Meta:
         model = Page
@@ -46,3 +50,16 @@ class UpdateCreatePageSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 {'permission': 'you have no permissions to this action'}
             )
+
+
+class CreatePageReviewSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = PageReview
+        fields = ('text',)
+    
+    def create(self, validated_data):
+        page = get_object_or_404(Page, pk=self.context['page_slug'])
+        validated_data['user'] = self.context['request'].user
+        validated_data['page'] = page
+        return super().create(validated_data)
