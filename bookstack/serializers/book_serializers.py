@@ -42,6 +42,7 @@ class BooksSerializer(serializers.ModelSerializer):
 
 class CreateUpdateBookSerializer(TaggitSerializer, serializers.ModelSerializer):
     tags = TagListSerializerField()
+    image = serializers.ImageField(required=False)
     
     class Meta:
         model = Book
