@@ -44,6 +44,14 @@ class BookViewset(ModelViewSet):
             return BookDetailSerializer
         else:
             return BooksSerializer
+    
+    def get_serializer_context(self):
+        return {
+            'request': self.request,
+            'format': self.format_kwarg,
+            'view': self,
+            'shelve_slug': self.kwargs['shelve_slug']
+        }
 
 
 class BookActivityView(ListAPIView):
