@@ -5,11 +5,16 @@ from rest_framework.mixins import ListModelMixin, CreateModelMixin, UpdateModelM
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.filters import SearchFilter, OrderingFilter
+from django_filters.rest_framework import DjangoFilterBackend
+
 
 from bookstack.serializers.page_serializers import (
     PageSerializer, UpdateCreatePageSerializer, CreatePageReviewSerializer
 )
 from bookstack.models import Page, Book, PageReview
+from bookstack.filters import PageFilterset
+
 
 class StandardResultsSetPagination(PageNumberPagination):
     page_size = 1
@@ -24,7 +29,11 @@ class PageViewset(ListModelMixin,
     http_method_names = ['get', 'post', 'patch', 'delete']
     permission_classes = (IsAuthenticatedOrReadOnly,)
     pagination_class = StandardResultsSetPagination
-    
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_class = PageFilterset
+    search_fields = ['name', 'text']
+    ordering_fields = ['name', 'created_at', 'updated_at']
+
     
     def destroy(self, request, *args, **kwargs):
         book = get_object_or_404(Book, slug=self.kwargs['book_slug'])
@@ -70,7 +79,6 @@ class PageReviewViewset(CreateModelMixin,
             return Response(
                 {'permission': 'you have no permissions to delete this book'},
                 status=status.HTTP_406_NOT_ACCEPTABLE)
-
     
     def get_serializer_context(self):
         return {

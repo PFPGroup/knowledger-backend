@@ -1,8 +1,12 @@
 from rest_framework import status
 from rest_framework.response import Response
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.generics import ListAPIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.filters import SearchFilter, OrderingFilter
+from django_filters.rest_framework import DjangoFilterBackend
+
 from bookstack.serializers.book_serializers import (
     BooksSerializer, BookDetailSerializer, CreateUpdateBookSerializer,
     BookActivitySerializer,
@@ -10,11 +14,21 @@ from bookstack.serializers.book_serializers import (
 from bookstack.models import (
     Book, Activity
 )
+from bookstack.filters import BookFilterset
+
+class StandardResultsSetPagination(PageNumberPagination):
+    page_size = 9
+    page_size_query_param = 'page_size'
 
 
 class BookViewset(ModelViewSet):
     http_method_names = ['get', 'post', 'patch', 'delete']
     permission_classes = (IsAuthenticatedOrReadOnly,)
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_class = BookFilterset
+    search_fields = ['name', 'description']
+    ordering_fields = ['name', 'created_at', 'updated_at']
+    pagination_class = StandardResultsSetPagination
     lookup_field = 'slug'
     extra_kwargs = {
             'url': {'lookup_field': 'slug'}

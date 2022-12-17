@@ -4,6 +4,10 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.generics import ListAPIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
+from rest_framework.filters import SearchFilter, OrderingFilter
+from django_filters.rest_framework import DjangoFilterBackend
+
+
 from bookstack.models import (
     Shelve, Activity
 )
@@ -11,6 +15,7 @@ from bookstack.serializers.shelve_serializers import (
     ShelveSerializer, NewShelveSerializer, CreateUpdateShelveSerializer,
     ShelveDetailSerializer, ShelveActivitySerializer,
 )
+from bookstack.filters import  ShelveFilterset
 
 # Create your views here.
 
@@ -22,6 +27,10 @@ class StandardResultsSetPagination(PageNumberPagination):
 
 class ShelveViewset(ModelViewSet):
     http_method_names = ['get', 'post', 'patch', 'delete']
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_class = ShelveFilterset
+    search_fields = ['name', 'description']
+    ordering_fields = ['name', 'created_at', 'updated_at']
     queryset = Shelve.objects.all().prefetch_related('books')
     pagination_class = StandardResultsSetPagination
     permission_classes = (IsAuthenticatedOrReadOnly,)

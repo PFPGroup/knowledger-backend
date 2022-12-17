@@ -14,8 +14,8 @@ class Shelve(models.Model):
     description = models.CharField(max_length=250, blank=True)
     slug = models.SlugField(unique=True,max_length=50)
     is_active = models.BooleanField(default=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateField(auto_now_add=True)
+    updated_at = models.DateField(auto_now=True)
     image = models.ImageField(upload_to='media/images/shelves', default='media/images/default.jpg')
     tags = TaggableManager()
 
@@ -74,8 +74,8 @@ class Page(models.Model):
     name = models.CharField(max_length=150, null=True) # in deployment change null to False
     text = models.TextField()
     slug = models.SlugField(unique=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateField(auto_now_add=True)
+    updated_at = models.DateField(auto_now=True)
     tags = TaggableManager()
 
     def save(self, *args, **kwargs):
@@ -88,14 +88,14 @@ class Page(models.Model):
 
 
 class PageImage(models.Model):
-    image = models.ImageField(upload_to='media/images/pages', default='media/images/default.jpg')
+    image = models.ImageField(upload_to='media/images/pages', null=False)
     page = models.ManyToManyField(Page)
 
 
 class PageReview(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     page = models.ForeignKey(Page, on_delete=models.CASCADE, related_name='reviews', default=None) # remove the default in deployment
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateField(auto_now_add=True)
     text = models.CharField(max_length=255)
 
 
@@ -119,7 +119,7 @@ class Activity(models.Model):
     page = models.ForeignKey(Page, on_delete=models.CASCADE, null=True, blank=True)
     name = models.CharField(max_length=150)
     slug = models.SlugField(blank=False)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateField(auto_now_add=True)
     
     class Meta:
         ordering = ('-created_at',)

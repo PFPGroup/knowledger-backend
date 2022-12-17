@@ -3,15 +3,25 @@ from rest_framework import status
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
+from rest_framework.filters import SearchFilter, OrderingFilter
+from django_filters.rest_framework import DjangoFilterBackend
+
 
 from bookstack.models import Chapter, Book
 from bookstack.serializers.chapter_serializers import (
     ChapterSerializer, ChapterDetailSerializer, CreateUpdateChapterSerializer
 )
+from bookstack.filters import ChapterFilterset
+
 
 class ChapterViewSet(ModelViewSet):
     http_method_names = ('get', 'post', 'patch', 'delete')
     permission_classes = [IsAuthenticatedOrReadOnly,]
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_class = ChapterFilterset
+    search_fields = ['name', 'description']
+    ordering_fields = ['name', 'created_at']
+
     
     def retrieve(self, request, *args, **kwargs):
         self.queryset = Chapter.objects.filter(book__slug=self.kwargs['book_slug']).prefetch_related('page')
