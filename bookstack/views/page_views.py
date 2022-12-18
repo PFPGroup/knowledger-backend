@@ -12,7 +12,9 @@ from django_filters.rest_framework import DjangoFilterBackend
 from bookstack.serializers.page_serializers import (
     PageSerializer, UpdateCreatePageSerializer, CreatePageReviewSerializer
 )
-from bookstack.models import Page, Book, PageReview
+from bookstack.models import (
+    Page, Book, PageImage, PageReview, Activity
+)
 from bookstack.filters import PageFilterset
 
 
@@ -33,12 +35,53 @@ class PageViewset(ListModelMixin,
     filterset_class = PageFilterset
     search_fields = ['name', 'text']
     ordering_fields = ['name', 'created_at', 'updated_at']
+    lookup_field = 'slug'
+    extra_kwargs = {
+            'url': {'lookup_field': 'slug'}
+            }
 
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        page = serializer.save()
+        Activity.objects.create(
+            user=request.user,
+            activity=1,
+            model_type='page',
+            page=page,
+            name=page.name,
+            slug=page.slug
+        )
+        return Response(serializer.data)
+    
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        page = serializer.save()
+        Activity.objects.create(
+            user=request.user,
+            activity=2,
+            model_type='page',
+            page=page,
+            name=page.name,
+            slug=page.slug
+        )
+        return Response(serializer.data)
     
     def destroy(self, request, *args, **kwargs):
         book = get_object_or_404(Book, slug=self.kwargs['book_slug'])
         if request.user in book.authors.all():
-            return super().destroy(request, *args, **kwargs)
+            instance = self.get_object()
+            self.perform_destroy(instance)
+            Activity.objects.create(
+            user=request.user,
+            activity=3,
+            model_type='page',
+            name=instance.name,
+            )
+
+            return Response({'ok': 'object has been deleted successfully'})
         else:
             return Response(
                 {'permission': 'you have no permissions to delete this book'},
@@ -56,7 +99,8 @@ class PageViewset(ListModelMixin,
             'request': self.request,
             'format': self.format_kwarg,
             'view': self,
-            'book_slug': self.kwargs['book_slug']
+            'book_slug': self.kwargs['book_slug'],
+            'chapter_pk': self.kwargs['chapter_pk'],
         }
     
     def get_queryset(self):

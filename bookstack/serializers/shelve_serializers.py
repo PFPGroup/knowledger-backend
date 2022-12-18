@@ -3,7 +3,6 @@ from rest_framework import serializers
 from bookstack.models import (
     Activity, Book, Shelve
 )
-
 from taggit.serializers import (
     TagListSerializerField, TaggitSerializer
 )
@@ -43,7 +42,6 @@ class CreateUpdateShelveSerializer(TaggitSerializer, serializers.ModelSerializer
         else:
             raise serializers.ValidationError(
                 {'permission': "you don't have permission to do this."})
-
     
     def update(self, instance, validated_data):
         if self.context['request'].user.id == instance.creature.id:
@@ -72,4 +70,4 @@ class ShelveActivitySerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Activity
-        fields = ('user', 'activity', 'created_at', 'name', 'slug')
+        fields = ('user', 'activity', 'created_at', 'name', 'slug', 'shelve')

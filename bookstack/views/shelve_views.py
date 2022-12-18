@@ -7,7 +7,6 @@ from rest_framework.response import Response
 from rest_framework.filters import SearchFilter, OrderingFilter
 from django_filters.rest_framework import DjangoFilterBackend
 
-
 from bookstack.models import (
     Shelve, Activity
 )
@@ -39,13 +38,49 @@ class ShelveViewset(ModelViewSet):
         'url': {'lookup_field': 'slug'},
     }
     
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        shelve = serializer.save()
+        Activity.objects.create(
+            user=request.user,
+            activity=1,
+            model_type='shelve',
+            shelve=shelve,
+            name=shelve.name,
+            slug=shelve.slug
+        )
+        return Response(serializer.data)
+    
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        shelve = serializer.save()
+        Activity.objects.create(
+            user=request.user,
+            activity=2,
+            model_type='shelve',
+            shelve=shelve,
+            name=shelve.name,
+            slug=shelve.slug
+        )
+        return Response(serializer.data)
+    
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         if not request.user.id == instance.creature.id:
             return Response(
                 {'permission': 'permission denied'},
                 status=status.HTTP_406_NOT_ACCEPTABLE)
-        return super().destroy(request, *args, **kwargs)
+        self.perform_destroy(instance)
+        Activity.objects.create(
+            user=request.user,
+            activity=3,
+            model_type='shelve',
+            name=instance.name
+        )
+        return Response({'ok': 'object has been deleted successfully'})
     
     def get_serializer_class(self):
         if self.action == 'update' or self.action == 'create':
@@ -66,4 +101,4 @@ class ShelveActivityView(ListAPIView):
     serializer_class = ShelveActivitySerializer
     
     def get_queryset(self):
-        return Activity.objects.filter(model_type=1)
+        return Activity.objects.filter(model_type='shelve')

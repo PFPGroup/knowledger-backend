@@ -2,7 +2,9 @@ from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from taggit.serializers import (TaggitSerializer, TagListSerializerField)
 
-from bookstack.models import Page, PageReview, Book
+from bookstack.models import (
+    Chapter, Page, PageReview, Book
+)
 
 class PageReviewSerializer(serializers.ModelSerializer):
     user = serializers.CharField(max_length=150)
@@ -33,8 +35,10 @@ class UpdateCreatePageSerializer(serializers.ModelSerializer):
     
     def create(self, validated_data):
         book = get_object_or_404(Book, slug=self.context['book_slug'])
-        if self.context['request'].user in book.authors.all():
-            validated_data['chapter'] = book
+        chapter = get_object_or_404(Chapter, id=self.context['chapter_pk'])
+        user = self.context['request'].user
+        if user in book.authors.all() or book.creature == user:
+            validated_data['chapter'] = chapter
             return super().create(validated_data)
         else:
             raise serializers.ValidationError(

@@ -40,13 +40,49 @@ class BookViewset(ModelViewSet):
         serializer = BookDetailSerializer(instance)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        book = serializer.save()
+        Activity.objects.create(
+            user=request.user,
+            activity=1,
+            model_type='book',
+            book=book,
+            name=book.name,
+            slug=book.slug
+        )
+        return Response(serializer.data)
+    
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        book = serializer.save()
+        Activity.objects.create(
+            user=request.user,
+            activity=2,
+            model_type='book',
+            book=book,
+            name=book.name,
+            slug=book.slug
+        )
+        return Response(serializer.data)
+    
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         if not instance.creature.id == request.user.id:
             return Response(
                 {'error': 'no permission'},
                 status=status.HTTP_401_UNAUTHORIZED)
-        return super().destroy(request, *args, **kwargs)
+        self.perform_destroy(instance)
+        Activity.objects.create(
+            user=request.user,
+            activity=3,
+            model_type='shelve',
+            name=instance.name
+        )
+        return Response({'ok': 'object has been deleted successfully'})
     
     def get_queryset(self):
         return Book.objects.filter(shelve__slug=self.kwargs['shelve_slug'])

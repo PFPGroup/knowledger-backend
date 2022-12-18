@@ -6,7 +6,6 @@ from rest_framework.response import Response
 from rest_framework.filters import SearchFilter, OrderingFilter
 from django_filters.rest_framework import DjangoFilterBackend
 
-
 from bookstack.models import Chapter, Book
 from bookstack.serializers.chapter_serializers import (
     ChapterSerializer, ChapterDetailSerializer, CreateUpdateChapterSerializer
@@ -21,7 +20,6 @@ class ChapterViewSet(ModelViewSet):
     filterset_class = ChapterFilterset
     search_fields = ['name', 'description']
     ordering_fields = ['name', 'created_at']
-
     
     def retrieve(self, request, *args, **kwargs):
         self.queryset = Chapter.objects.filter(book__slug=self.kwargs['book_slug']).prefetch_related('page')
