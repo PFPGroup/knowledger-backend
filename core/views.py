@@ -42,14 +42,18 @@ class RegisterView(CreateAPIView):
         subject = 'Activate Your BookStack Account'
         message = f"""Please click on the following link to activate your account
         {current_site.domain}/auth/activate-email/{uid64}/{token}"""
-        send_mail(
-            subject=subject,
-            from_email=None,
-            message=message,
-            recipient_list=[f'{user.email}'],
-            fail_silently=False
-        )
-        return Response({'message': 'Please Confirm your email to complete registration.'})
+        try:
+            send_mail(
+                subject=subject,
+                from_email=None,
+                message=message,
+                recipient_list=[f'{user.email}'],
+                fail_silently=False
+            )
+            return Response({'message': 'Please Confirm your email to complete registration.'})
+        except:
+            user.delete()
+            return Response({'error': 'please try again somthing went wrong!'})
 
 
 class ActivateAccount(APIView):
