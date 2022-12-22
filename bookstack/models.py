@@ -1,11 +1,31 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.template.defaultfilters import slugify
+from django.core.files import File
 from taggit.managers import TaggableManager
+from PIL import Image
+from io import BytesIO
 
 # Create your models here.
 
 User = get_user_model()
+
+def _compress_image(image):
+    img = Image.open(image)
+    img.convert('RGB')
+    img_io = BytesIO() 
+    img.save(img_io, 'JPEG', quality=70, optimize=True) 
+    new_image = File(img_io, name=image.name)
+    return new_image
+
+def _create_thumbnail(image, size=(240, 240)):
+    img = Image.open(image)
+    img.convert('RGB')
+    img.thumbnail(size)
+    thumb_io = BytesIO()
+    img.save(thumb_io, 'JPEG', quality=40)
+    thumbnail = File(thumb_io, name=image.name)
+    return thumbnail
 
 class Shelve(models.Model):
     creature = models.ForeignKey(User , on_delete=models.SET_NULL, null=True)
@@ -15,8 +35,8 @@ class Shelve(models.Model):
     is_active = models.BooleanField(default=True)
     created_at = models.DateField(auto_now_add=True)
     updated_at = models.DateField(auto_now=True)
-    image = models.ImageField(upload_to='images/shelves/', default='images/default.jpg')
-    thumbnail = models.ImageField(upload_to='images/shelve/thumbnail/')
+    image = models.ImageField(upload_to='images/shelves/', default='images/default_shelve.jpg')
+    thumbnail = models.ImageField(upload_to='images/shelve/thumbnail/', default='images/default_shelve.jpg')
     tags = TaggableManager()
 
 
@@ -26,6 +46,9 @@ class Shelve(models.Model):
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.name)
+        
+        self.thumbnail = _create_thumbnail(self.image)
+        self.image = _compress_image(self.image)
         return super().save(*args, **kwargs)
     
     def __str__(self) -> str:
@@ -42,8 +65,8 @@ class Book(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     slug = models.SlugField(unique=True, blank=True)
-    image = models.ImageField(upload_to='images/books/', default='images/default.jpg')
-    thumbnail = models.ImageField(upload_to='images/books/thumbnail/')
+    image = models.ImageField(upload_to='images/books/', default='images/default_book.jpg')
+    thumbnail = models.ImageField(upload_to='images/books/thumbnail/', default='images/default_book.jpg')
     tags = TaggableManager()
     views_count = models.PositiveIntegerField(default=0)
     
@@ -53,6 +76,9 @@ class Book(models.Model):
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.name)
+        
+        self.thumbnail = _create_thumbnail(self.image)
+        self.image = _compress_image(self.image)
         return super().save(*args, **kwargs)
     
     def __str__(self) -> str:
@@ -100,6 +126,10 @@ class Page(models.Model):
 class PageImage(models.Model):
     image = models.ImageField(upload_to='images/pages/')
     page = models.ManyToManyField(Page)
+    
+    def save(self, *args, **kwargs):
+        self.image = _compress_image(self.image)
+        return super().save(*args, **kwargs)
 
 
 class PageReview(models.Model):
