@@ -15,7 +15,8 @@ class Shelve(models.Model):
     is_active = models.BooleanField(default=True)
     created_at = models.DateField(auto_now_add=True)
     updated_at = models.DateField(auto_now=True)
-    image = models.ImageField(upload_to='media/images/shelves', default='media/images/default.jpg')
+    image = models.ImageField(upload_to='images/shelves/', default='images/default.jpg')
+    thumbnail = models.ImageField(upload_to='images/shelve/thumbnail/')
     tags = TaggableManager()
 
 
@@ -41,7 +42,8 @@ class Book(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     slug = models.SlugField(unique=True, blank=True)
-    image = models.ImageField(upload_to='media/images/books', default='media/images/default.jpg')
+    image = models.ImageField(upload_to='images/books/', default='images/default.jpg')
+    thumbnail = models.ImageField(upload_to='images/books/thumbnail/')
     tags = TaggableManager()
     views_count = models.PositiveIntegerField(default=0)
     
@@ -96,7 +98,7 @@ class Page(models.Model):
 
 
 class PageImage(models.Model):
-    image = models.ImageField(upload_to='media/images/pages', null=False)
+    image = models.ImageField(upload_to='images/pages/')
     page = models.ManyToManyField(Page)
 
 
