@@ -43,6 +43,7 @@ class Book(models.Model):
     slug = models.SlugField(unique=True, blank=True)
     image = models.ImageField(upload_to='media/images/books', default='media/images/default.jpg')
     tags = TaggableManager()
+    views_count = models.PositiveIntegerField(default=0)
     
     class Meta:
         ordering = ('-name',)
@@ -54,6 +55,14 @@ class Book(models.Model):
     
     def __str__(self) -> str:
         return self.name
+
+
+class BookViews(models.Model):
+    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+    ip_address = models.GenericIPAddressField(unique=True)
+
+    def __str__(self) -> str:
+        return f'{self.ip_address} in {self.book.name}'
 
 
 class Chapter(models.Model):

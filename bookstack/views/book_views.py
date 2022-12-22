@@ -12,7 +12,7 @@ from bookstack.serializers.book_serializers import (
     BookActivitySerializer,
 )
 from bookstack.models import (
-    Book, Activity
+    Book, BookViews, Activity,
 )
 from bookstack.filters import BookFilterset
 
@@ -34,10 +34,21 @@ class BookViewset(ModelViewSet):
             'url': {'lookup_field': 'slug'}
             }
     
+    def check_client_ip(self, instance, ip):
+        ip_obj, created = BookViews.objects.get_or_create(
+            book=instance,
+            ip_address=ip,
+        )
+        return created
+    
     def retrieve(self, request, *args, **kwargs):
         self.queryset = Book.objects.filter(shelve__slug=self.kwargs['shelve_slug']).prefetch_related('chapter')
         instance = self.get_object()
-        serializer = BookDetailSerializer(instance)
+        created = self.check_client_ip(instance, request.META.get('REMOTE_ADDR'))
+        if created:
+            instance.views_count += 1
+            instance.save()
+        serializer = self.get_serializer(instance)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
     def create(self, request, *args, **kwargs):
