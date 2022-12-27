@@ -1,37 +1,15 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.template.defaultfilters import slugify
-from django.core.files import File
 from django.utils.html import format_html
 from taggit.managers import TaggableManager
-from PIL import Image
-from io import BytesIO
 
-from extensions.utils import convert_to_jalali
+from extensions.utils import convert_to_jalali, _compress_image, _create_thumbnail
 
 # Create your models here.
 
 User = get_user_model()
 
-def _compress_image(image):
-    img = Image.open(image)
-    img_io = BytesIO() 
-    if img.mode == 'RGBA':
-        img.save(img_io, 'PNG', quality=70, optimize=True) 
-    else:
-        img.save(img_io, 'JPEG', quality=70, optimize=True) 
-    new_image = File(img_io, name=image.name)
-    return new_image
-
-def _create_thumbnail(image, size=(240, 240)):
-    img = Image.open(image)
-    thumb_io = BytesIO() 
-    if img.mode == 'RGBA':
-        img.save(thumb_io, 'PNG', quality=40) 
-    else:
-        img.save(thumb_io, 'JPEG', quality=40) 
-    thumbnail = File(thumb_io, name=image.name)
-    return thumbnail
 
 class Shelve(models.Model):
     creature = models.ForeignKey(User , on_delete=models.SET_NULL, null=True, verbose_name='ایجاد کننده')
