@@ -21,9 +21,11 @@ from drf_spectacular.views import (
     SpectacularAPIView, SpectacularSwaggerView
 )
 from .settings import DEBUG
+from bookstack.admin import bookstack_admin
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('bookstack/admin-area/', bookstack_admin.urls),
     # Documentation
     path('api/schema/', SpectacularAPIView.as_view(), name='api-schema'),
     path('api/docs/', SpectacularSwaggerView.as_view(url_name='api-schema'),
