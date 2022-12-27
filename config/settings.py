@@ -48,7 +48,8 @@ INSTALLED_APPS = [
     "debug_toolbar",
     # Local apps
     'core',
-    'bookstack'
+    'bookstack',
+    'extensions',
 ]
 
 MIDDLEWARE = [
