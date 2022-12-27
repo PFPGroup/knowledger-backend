@@ -46,7 +46,7 @@ class CreateUpdateBookSerializer(TaggitSerializer, serializers.ModelSerializer):
     
     class Meta:
         model = Book
-        fields = ('authors', 'name', 'description', 'slug', 'image', 'tags', 'publish')
+        fields = ('authors', 'name', 'description', 'image', 'tags', 'published')
     
     def create(self, validated_data):
         shelve = get_object_or_404(Shelve, slug=self.context['shelve_slug'])
