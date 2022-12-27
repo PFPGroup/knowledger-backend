@@ -7,6 +7,8 @@ from taggit.managers import TaggableManager
 from PIL import Image
 from io import BytesIO
 
+from extensions.utils import convert_to_jalali
+
 # Create your models here.
 
 User = get_user_model()
@@ -62,6 +64,10 @@ class Shelve(models.Model):
     def thumbnail_tag(self):
         return format_html(f'<img width=125 hiegth=100 style="border-radius: 10px" src="{self.thumbnail.url}" />')
     thumbnail_tag.short_description = 'عکس'
+    
+    def jcreated_at(self):
+        return convert_to_jalali(self.created_at)
+    jcreated_at.short_description = 'زمان انتشار'
 
 
 class Book(models.Model):
@@ -98,6 +104,10 @@ class Book(models.Model):
     def thumbnail_tag(self):
         return format_html(f'<img width=125 hiegth=100 style="border-radius: 10px" src="{self.thumbnail.url}" />')
     thumbnail_tag.short_description = 'عکس'
+    
+    def jcreated_at(self):
+        return convert_to_jalali(self.created_at)
+    jcreated_at.short_description = 'زمان انتشار'
 
 
 
@@ -122,6 +132,11 @@ class Chapter(models.Model):
     
     def __str__(self) -> str:
         return self.name
+    
+    def jcreated_at(self):
+        return convert_to_jalali(self.created_at)
+    jcreated_at.short_description = 'زمان انتشار'
+
 
 class Page(models.Model):
     chapter = models.ForeignKey(Chapter, on_delete=models.CASCADE, related_name='page', verbose_name='قفسه')
@@ -142,6 +157,11 @@ class Page(models.Model):
         verbose_name = 'صفحه'
         verbose_name_plural = 'صفحات'
 
+    def jcreated_at(self):
+        return convert_to_jalali(self.created_at)
+    jcreated_at.short_description = 'زمان انتشار'
+
+
 
 class PageImage(models.Model):
     image = models.ImageField(upload_to='images/pages/', verbose_name='عکس')
@@ -160,6 +180,11 @@ class PageReview(models.Model):
     
     def __str__(self) -> str:
         return self.user.username
+
+    def jcreated_at(self):
+        return convert_to_jalali(self.created_at)
+    jcreated_at.short_description = 'زمان انتشار'
+
 
 
 class Activity(models.Model):
@@ -188,3 +213,7 @@ class Activity(models.Model):
         ordering = ('-created_at',)
         verbose_name = 'فعالیت'
         verbose_name_plural = 'فعالیت ها'
+    
+    def jcreated_at(self):
+        return convert_to_jalali(self.created_at)
+    jcreated_at.short_description = 'زمان انتشار'

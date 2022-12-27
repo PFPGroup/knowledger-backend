@@ -16,7 +16,7 @@ bookstack_admin = BookStackAdminَArea(name='BookstackAminArea')
 
 
 class ShelveAdminModel(admin.ModelAdmin):
-    list_display = ('thumbnail_tag', 'name', 'created_at', 'is_active')
+    list_display = ('thumbnail_tag', 'name', 'jcreated_at', 'is_active')
     list_filter = ('is_active', 'updated_at')
     search_fields = ('creature', 'name', 'description', 'tags')
     exclude = ('slug', 'thumbnail')
@@ -30,14 +30,14 @@ class BookAdminModel(admin.ModelAdmin):
 
 
 class ChapterAdminModel(admin.ModelAdmin):
-    list_display = ('name', 'created_at')
+    list_display = ('name', 'jcreated_at')
     list_filter = ('created_at',)
     search_fields = ('name', 'description')
     exclude = ('slug', 'thumbnail')
 
 
 class PageAdminModel(admin.ModelAdmin):
-    list_display = ('name', 'created_at')
+    list_display = ('name', 'jcreated_at')
     list_filter = ('created_at', 'updated_at')
     search_fields = ('name', 'description', 'tags')
     exclude = ('slug', 'thumbnail')
