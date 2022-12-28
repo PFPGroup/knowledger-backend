@@ -1,3 +1,4 @@
+from django.apps import apps
 from django.utils import timezone
 from . import jalali
 from django.core.files import File
@@ -44,22 +45,49 @@ def convert_to_jalali(time):
 
     return convert_to_persian_number(jalali_time)
 
-def _compress_image(image):
+def image_name_create(username, obj_id, type):
+    name = f'{obj_id}-{username}-{timezone.now()}.{type}'
+    return name
+
+def compress_image(image, username, obj_id):
+    if 'default_shelve' in image.name or 'default_book' in image.name:
+        return image
+
     img = Image.open(image)
     img_io = BytesIO() 
     if img.mode == 'RGBA':
         img.save(img_io, 'PNG', quality=70, optimize=True) 
+        name=image_name_create(username, obj_id, type='PNG')
     else:
-        img.save(img_io, 'JPEG', quality=70, optimize=True) 
-    new_image = File(img_io, name=image.name)
+        img.save(img_io, 'JPEG', quality=70, optimize=True)
+        name=image_name_create(username, obj_id, type='JPEG')
+
+    new_image = File(img_io, name=name)
     return new_image
 
-def _create_thumbnail(image, size=(240, 240)):
+def create_thumbnail(image, username, obj_id, size=(240, 240)):
+    if 'default_shelve' in image.name or 'default_book' in image.name:
+        return image
+
     img = Image.open(image)
+    img.thumbnail(size)
     thumb_io = BytesIO() 
+    
     if img.mode == 'RGBA':
-        img.save(thumb_io, 'PNG', quality=40) 
+        img.save(thumb_io, 'PNG', quality=70, optimize=True) 
+        name=image_name_create(username, obj_id, type='PNG')
     else:
-        img.save(thumb_io, 'JPEG', quality=40) 
-    thumbnail = File(thumb_io, name=image.name)
+        img.save(thumb_io, 'JPEG', quality=70, optimize=True)
+        name=image_name_create(username, obj_id, type='JPEG')
+    thumbnail = File(thumb_io, name=name)
     return thumbnail
+
+
+def check_client_ip(instance, ip):
+    BookViews = apps.get_model('bookstack.BookViews')
+    ip_obj, created = BookViews.objects.get_or_create(ip_address=ip)
+    if created:
+        instance.ip.add(ip_obj)
+        instance.views_count += 1
+        instance.save()
+    return None
