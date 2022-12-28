@@ -29,3 +29,11 @@
     font-weight: 700;
     font-style: normal;
 }
+
+@font-face {
+    font-family: 'Alibaba';
+    src: url('../fonts/alibaba-bold.woff2.woff2') format('woff'),
+    url('../fonts/alibaba-regular.woff2.woff2') format('woff');
+    font-weight: 700;
+    font-style: normal;
+}

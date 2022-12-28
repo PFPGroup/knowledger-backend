@@ -441,7 +441,7 @@ input, textarea, select, .form-row p, form .button {
     margin: 2px 0;
     padding: 2px 3px;
     vertical-align: middle;
-    font-family:IranNastaliq,'IranNastaliq',tahoma;
+    font-family:Alibaba,'Alibaba',tahoma;
     font-weight: normal;
     font-size: 0.8125rem;
 }
@@ -922,7 +922,7 @@ a.deletelink:focus, a.deletelink:hover {
     background: none;
     border: 0;
     cursor: pointer;
-    font-family:IranNastaliq,'IranNastaliq',tahoma;
+    font-family:Alibaba,'Alibaba',tahoma;
 }
 
 #user-tools {
@@ -1086,4 +1086,8 @@ a.deletelink:focus, a.deletelink:hover {
 .paginator a:focus, .paginator a:hover {
     color: white;
     background: var(--link-hover-color);
+}
+
+#changelist-filter .selected, #changelist-filter li a, #changelist-filter summary {
+    font-family:Alibaba,'Alibaba',tahoma;
 }
