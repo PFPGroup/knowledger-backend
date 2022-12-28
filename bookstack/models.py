@@ -19,8 +19,8 @@ class Shelve(models.Model):
     is_active = models.BooleanField(default=True, verbose_name='وضعیت')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='زمان انتشار')
     updated_at = models.DateTimeField(auto_now=True)
-    image = models.ImageField(upload_to='images/shelves/', default='images/default_shelve.jpg', verbose_name='عکس')
-    thumbnail = models.ImageField(upload_to='images/shelve/thumbnail/', default='images/default_shelve.jpg')
+    image = models.ImageField(upload_to='shelves/', default='default_shelve.jpg', verbose_name='عکس')
+    thumbnail = models.ImageField(upload_to='shelves/thumbnail/', default='default_shelve.jpg')
     tags = TaggableManager(verbose_name='بر چسب ها')
 
     class Meta:
@@ -52,14 +52,15 @@ class Book(models.Model):
     shelve = models.ForeignKey(Shelve, on_delete=models.SET_NULL, null=True, related_name='books', verbose_name='قفسه')
     creature = models.ForeignKey(User , on_delete=models.SET_NULL, null=True, verbose_name='ایجاد کننده')
     authors = models.ManyToManyField(User, related_name='authors', verbose_name='نویسندگان')
+    ip = models.ManyToManyField("BookViews", blank=True)
     name = models.CharField(max_length=25, verbose_name='نام')
     published = models.BooleanField(default=False, verbose_name='وضعیت')
     description = models.CharField(max_length=250, verbose_name='توضیحات')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='زمان انتشار')
     updated_at = models.DateTimeField(auto_now=True)
     slug = models.SlugField(unique=True, blank=True)
-    image = models.ImageField(upload_to='images/books/', default='images/default_book.jpg', verbose_name='عکس')
-    thumbnail = models.ImageField(upload_to='images/books/thumbnail/', default='images/default_book.jpg')
+    image = models.ImageField(upload_to='books/', default='default_book.jpg', verbose_name='عکس')
+    thumbnail = models.ImageField(upload_to='books/thumbnail/', default='default_book.jpg')
     tags = TaggableManager(verbose_name='برچسب ها')
     views_count = models.PositiveIntegerField(default=0)
     
@@ -90,11 +91,10 @@ class Book(models.Model):
 
 
 class BookViews(models.Model):
-    book = models.ForeignKey(Book, on_delete=models.CASCADE)
     ip_address = models.GenericIPAddressField(unique=True)
 
     def __str__(self) -> str:
-        return f'{self.ip_address} in {self.book.name}'
+        return self.ip_address
 
 
 class Chapter(models.Model):
@@ -124,6 +124,7 @@ class Page(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='زمان انتشار')
     updated_at = models.DateTimeField(auto_now=True)
     tags = TaggableManager(verbose_name='برچسب ها')
+    page = models.ManyToManyField('PageImage')
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -140,10 +141,8 @@ class Page(models.Model):
     jcreated_at.short_description = 'زمان انتشار'
 
 
-
 class PageImage(models.Model):
-    image = models.ImageField(upload_to='images/pages/', verbose_name='عکس')
-    page = models.ManyToManyField(Page, verbose_name='صفحه')
+    image = models.ImageField(upload_to='pages/', verbose_name='عکس')
     
     def save(self, *args, **kwargs):
         self.image = _compress_image(self.image)
