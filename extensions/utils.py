@@ -45,11 +45,12 @@ def convert_to_jalali(time):
 
     return convert_to_persian_number(jalali_time)
 
-def image_name_create(username, obj_id, type):
-    name = f'{obj_id}-{username}-{timezone.now()}.{type}'
+def image_name_create(username, type):
+    persian_time = convert_to_jalali(timezone.now())
+    name = f'{username}-{persian_time}.{type}'
     return name
 
-def compress_image(image, username, obj_id):
+def compress_image(image, username):
     if 'default_shelve' in image.name or 'default_book' in image.name:
         return image
 
@@ -57,15 +58,15 @@ def compress_image(image, username, obj_id):
     img_io = BytesIO() 
     if img.mode == 'RGBA':
         img.save(img_io, 'PNG', quality=70, optimize=True) 
-        name=image_name_create(username, obj_id, type='PNG')
+        name=image_name_create(username, type='PNG')
     else:
         img.save(img_io, 'JPEG', quality=70, optimize=True)
-        name=image_name_create(username, obj_id, type='JPEG')
+        name=image_name_create(username, type='JPEG')
 
     new_image = File(img_io, name=name)
     return new_image
 
-def create_thumbnail(image, username, obj_id, size=(240, 240)):
+def create_thumbnail(image, username, size=(240, 240)):
     if 'default_shelve' in image.name or 'default_book' in image.name:
         return image
 
@@ -75,10 +76,10 @@ def create_thumbnail(image, username, obj_id, size=(240, 240)):
     
     if img.mode == 'RGBA':
         img.save(thumb_io, 'PNG', quality=70, optimize=True) 
-        name=image_name_create(username, obj_id, type='PNG')
+        name=image_name_create(username, type='PNG')
     else:
         img.save(thumb_io, 'JPEG', quality=70, optimize=True)
-        name=image_name_create(username, obj_id, type='JPEG')
+        name=image_name_create(username, type='JPEG')
     thumbnail = File(thumb_io, name=name)
     return thumbnail
 

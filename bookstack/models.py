@@ -1,9 +1,9 @@
-from django.db import models, router
-from django.db.models.deletion import Collector
+from django.db import models
 from django.contrib.auth import get_user_model
 from django.template.defaultfilters import slugify
 from django.utils.html import format_html
 from taggit.managers import TaggableManager
+import os
 
 from extensions.utils import convert_to_jalali, compress_image, create_thumbnail
 
@@ -32,9 +32,14 @@ class Shelve(models.Model):
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.name)
+            
+        # if self.id:
+        #     old_obj = Shelve.objects.only('image', 'thumbnail').get(id=self.id)
         
-        self.thumbnail = create_thumbnail(self.image, username=self.creature.username, obj_id=self.id)
-        self.image = compress_image(self.image, username=self.creature.username, obj_id=self.id)
+        self.thumbnail = create_thumbnail(self.image, username=self.creature.username)
+        self.image = compress_image(self.thumbnail, username=self.creature.username)
+        # if os.path.exists(old_obj.image.path):
+        #     os.remove(old_obj.image.path)
         return super().save(*args, **kwargs)
     
     def delete(self, using=None, keep_parents=None):
@@ -79,8 +84,8 @@ class Book(models.Model):
         if not self.slug:
             self.slug = slugify(self.name)
         
-        self.thumbnail = create_thumbnail(self.image, username=self.creature.username, obj_id=self.id)
-        self.image = compress_image(self.image, username=self.creature.username, obj_id=self.id)
+        self.thumbnail = create_thumbnail(self.image, username=self.creature.username)
+        self.image = compress_image(self.image, username=self.creature.username)
         return super().save(*args, **kwargs)
     
     def delete(self, using=None, keep_parents=None):
