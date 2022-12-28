@@ -38,6 +38,17 @@ class ShelveViewset(ModelViewSet):
         'url': {'lookup_field': 'slug'},
     }
     
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset().filter(is_active=True)
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+    
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -92,7 +103,7 @@ class ShelveViewset(ModelViewSet):
 
 
 class NewShelveView(ListAPIView):
-    queryset = Shelve.objects.all().values('name','slug').order_by('-created_at')
+    queryset = Shelve.objects.filter(is_active=True).values('name','slug').order_by('-updated_at')
     serializer_class = NewShelveSerializer
 
 
@@ -101,4 +112,4 @@ class ShelveActivityView(ListAPIView):
     serializer_class = ShelveActivitySerializer
     
     def get_queryset(self):
-        return Activity.objects.filter(model_type='shelve')
+        return Activity.objects.filter(model_type='shelve', is_active=True)

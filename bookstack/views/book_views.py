@@ -15,6 +15,7 @@ from bookstack.models import (
     Book, BookViews, Activity,
 )
 from bookstack.filters import BookFilterset
+from extensions.utils import check_client_ip
 
 class StandardResultsSetPagination(PageNumberPagination):
     page_size = 9
@@ -27,27 +28,16 @@ class BookViewset(ModelViewSet):
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_class = BookFilterset
     search_fields = ['name', 'description']
-    ordering_fields = ['name', 'created_at', 'updated_at']
+    ordering_fields = ['name', 'views_count', 'created_at', 'updated_at']
     pagination_class = StandardResultsSetPagination
     lookup_field = 'slug'
     extra_kwargs = {
             'url': {'lookup_field': 'slug'}
             }
     
-    def check_client_ip(self, instance, ip):
-        ip_obj, created = BookViews.objects.get_or_create(
-            book=instance,
-            ip_address=ip,
-        )
-        return created
-    
     def retrieve(self, request, *args, **kwargs):
-        self.queryset = Book.objects.filter(shelve__slug=self.kwargs['shelve_slug']).prefetch_related('chapter')
         instance = self.get_object()
-        created = self.check_client_ip(instance, request.META.get('REMOTE_ADDR'))
-        if created:
-            instance.views_count += 1
-            instance.save()
+        check_client_ip(instance, request.META.get('REMOTE_ADDR'))
         serializer = self.get_serializer(instance)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
@@ -79,7 +69,7 @@ class BookViewset(ModelViewSet):
             slug=book.slug
         )
         return Response(serializer.data)
-    
+        
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         if not instance.creature.id == request.user.id:
@@ -96,7 +86,9 @@ class BookViewset(ModelViewSet):
         return Response({'ok': 'object has been deleted successfully'})
     
     def get_queryset(self):
-        return Book.objects.filter(shelve__slug=self.kwargs['shelve_slug'])
+        return Book.objects.filter(
+            shelve__slug=self.kwargs['shelve_slug'], shelve__is_active=True). \
+                            prefetch_related('chapter')
 
     def get_serializer_class(self):
         if self.action == 'create' or self.action == 'update':

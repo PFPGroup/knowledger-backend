@@ -22,7 +22,6 @@ class ChapterViewSet(ModelViewSet):
     ordering_fields = ['name', 'created_at']
     
     def retrieve(self, request, *args, **kwargs):
-        self.queryset = Chapter.objects.filter(book__slug=self.kwargs['book_slug']).prefetch_related('page')
         instance = self.get_object()
         serializer = self.get_serializer(instance)
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -50,7 +49,7 @@ class ChapterViewSet(ModelViewSet):
         return super().destroy(request, *args, **kwargs)
     
     def get_queryset(self):
-        return Chapter.objects.filter(book__slug=self.kwargs['book_slug'])
+        return Chapter.objects.filter(book__slug=self.kwargs['book_slug'], book__published=True)
     
     def get_serializer_context(self):
         return {

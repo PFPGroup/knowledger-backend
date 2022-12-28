@@ -16,10 +16,10 @@ class ActivityView(ListAPIView):
 
 
 class RecentBookView(ListAPIView):
-    queryset = Book.objects.all().values('name', 'slug').order_by('created_at')[:10]
+    queryset = Book.objects.filter(published=True).values('name', 'slug').order_by('created_at')[:10]
     serializer_class = RecentBookSerializer
 
 
 class RecentPageView(ListAPIView):
-    queryset = Page.objects.all().values('text', 'slug').order_by('updated_at')[:10]
+    queryset = Page.objects.filter(chapter__book__published=True).values('text', 'slug').order_by('updated_at')[:10]
     serializer_class = RecentPageSerializer

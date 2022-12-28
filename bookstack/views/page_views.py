@@ -16,6 +16,7 @@ from bookstack.models import (
     Page, Book, PageImage, PageReview, Activity
 )
 from bookstack.filters import PageFilterset
+from extensions.utils import check_client_ip
 
 
 class StandardResultsSetPagination(PageNumberPagination):
@@ -39,6 +40,17 @@ class PageViewset(ListModelMixin,
     extra_kwargs = {
             'url': {'lookup_field': 'slug'}
             }
+
+    def list(self, request, *args, **kwargs):
+        queryset = Page.objects.filter(chapter__book__published=True).prefetch_related('tags', 'reviews')
+        page = self.paginate_queryset(queryset)
+        book = get_object_or_404(Book, slug=kwargs.get('book_slug'))
+        check_client_ip(book, request.META.get('REMOTE_ADDR'))
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
