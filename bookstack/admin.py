@@ -31,7 +31,7 @@ def make_draft(modeladmin, request, queryset):
     else:
         message_bit = 'پیش نویس شدند'
     modeladmin.message_user(request, f'{rows_updated} کتاب {message_bit}')
-make_publish.short_description = 'پیش نویس کردن کتاب های انتخاب شده'
+make_draft.short_description = 'پیش نویس کردن کتاب های انتخاب شده'
 
 def make_active(modeladmin, request, queryset):
     rows_updated = queryset.update(is_active=True)
@@ -65,6 +65,8 @@ class BookAdminModel(admin.ModelAdmin):
     list_filter = ('published', 'created_at', 'updated_at')
     search_fields = ('creature', 'name', 'description', 'tags')
     exclude = ('slug', 'thumbnail')
+    actions = (make_publish, make_draft)
+
 
 
 class ChapterAdminModel(admin.ModelAdmin):
