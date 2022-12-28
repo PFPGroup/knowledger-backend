@@ -1,10 +1,11 @@
-from django.db import models
+from django.db import models, router
+from django.db.models.deletion import Collector
 from django.contrib.auth import get_user_model
 from django.template.defaultfilters import slugify
 from django.utils.html import format_html
 from taggit.managers import TaggableManager
 
-from extensions.utils import convert_to_jalali, _compress_image, _create_thumbnail
+from extensions.utils import convert_to_jalali, compress_image, create_thumbnail
 
 # Create your models here.
 
@@ -32,9 +33,14 @@ class Shelve(models.Model):
         if not self.slug:
             self.slug = slugify(self.name)
         
-        self.thumbnail = _create_thumbnail(self.image)
-        self.image = _compress_image(self.image)
+        self.thumbnail = create_thumbnail(self.image, username=self.creature.username, obj_id=self.id)
+        self.image = compress_image(self.image, username=self.creature.username, obj_id=self.id)
         return super().save(*args, **kwargs)
+    
+    def delete(self, using=None, keep_parents=None):
+        self.image.storage.delete(self.image.name)
+        self.thumbnail.storage.delete(self.thumbnail.name)
+        return super().delete(using, keep_parents)
     
     def __str__(self) -> str:
         return self.name
@@ -73,9 +79,14 @@ class Book(models.Model):
         if not self.slug:
             self.slug = slugify(self.name)
         
-        self.thumbnail = _create_thumbnail(self.image)
-        self.image = _compress_image(self.image)
+        self.thumbnail = create_thumbnail(self.image, username=self.creature.username, obj_id=self.id)
+        self.image = compress_image(self.image, username=self.creature.username, obj_id=self.id)
         return super().save(*args, **kwargs)
+    
+    def delete(self, using=None, keep_parents=None):
+        self.image.storage.delete(self.image.name)
+        self.thumbnail.storage.delete(self.thumbnail.name)
+        return super().delete(using, keep_parents)
     
     def __str__(self) -> str:
         return self.name
@@ -87,7 +98,6 @@ class Book(models.Model):
     def jcreated_at(self):
         return convert_to_jalali(self.created_at)
     jcreated_at.short_description = 'زمان انتشار'
-
 
 
 class BookViews(models.Model):
@@ -125,28 +135,39 @@ class Page(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     tags = TaggableManager(verbose_name='برچسب ها')
     page = models.ManyToManyField('PageImage')
-
-    def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = slugify(self.name)
-        return super().save(*args, **kwargs)
     
     class Meta:
         ordering = ('id',)
         verbose_name = 'صفحه'
         verbose_name_plural = 'صفحات'
 
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        return super().save(*args, **kwargs)
+    
     def jcreated_at(self):
         return convert_to_jalali(self.created_at)
     jcreated_at.short_description = 'زمان انتشار'
 
 
 class PageImage(models.Model):
+    creature = models.ForeignKey(User , on_delete=models.SET_NULL, null=True, verbose_name='ایجاد کننده')
     image = models.ImageField(upload_to='pages/', verbose_name='عکس')
+    thumbnail = models.ImageField(upload_to='pages/thumbnail', verbose_name='عکس کوچک شده')
+    
+    def __str__(self) -> str:
+        return self.creature.username
     
     def save(self, *args, **kwargs):
-        self.image = _compress_image(self.image)
+        self.thumbnail = create_thumbnail(self.image, self.creature.username, self.id)
+        self.image = compress_image(self.image, self.creature.username, self.id)
         return super().save(*args, **kwargs)
+
+    def delete(self, using=None, keep_parents=None):
+        self.image.storage.delete(self.image.name)
+        self.thumbnail.storage.delete(self.thumbnail.name)
+        return super().delete(using, keep_parents)
 
 
 class PageReview(models.Model):
