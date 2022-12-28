@@ -15,11 +15,49 @@ class BookStackAdminَArea(admin.AdminSite):
 bookstack_admin = BookStackAdminَArea(name='BookstackAminArea')
 
 
+def make_publish(modeladmin, request, queryset):
+    rows_updated = queryset.update(published=True)
+    if rows_updated == 1:
+        message_bit = 'منتشر شد'
+    else:
+        message_bit = 'منتشر شدند'
+    modeladmin.message_user(request, f'{rows_updated} کتاب {message_bit}')
+make_publish.short_description = 'انتشار کتاب های انتخاب شده'
+
+def make_draft(modeladmin, request, queryset):
+    rows_updated = queryset.update(published=False)
+    if rows_updated == 1:
+        message_bit = 'پیش نویس شد'
+    else:
+        message_bit = 'پیش نویس شدند'
+    modeladmin.message_user(request, f'{rows_updated} کتاب {message_bit}')
+make_publish.short_description = 'پیش نویس کردن کتاب های انتخاب شده'
+
+def make_active(modeladmin, request, queryset):
+    rows_updated = queryset.update(is_active=True)
+    if rows_updated == 1:
+        message_bit = 'فعال شد'
+    else:
+        message_bit = 'فعال شدند'
+    modeladmin.message_user(request, f'{rows_updated} قفسه {message_bit}')
+make_active.short_description = 'فعال کردن قفسه ها انتخاب شده'
+
+def make_unactive(modeladmin, request, queryset):
+    rows_updated = queryset.update(is_active=False)
+    if rows_updated == 1:
+        message_bit = 'غیره فعال شد'
+    else:
+        message_bit = 'غیره فعال شدند'
+    modeladmin.message_user(request, f'{rows_updated} قفسه {message_bit}')
+make_unactive.short_description = 'غیره فعال کردن قفسه های انتخاب شده'
+
+
 class ShelveAdminModel(admin.ModelAdmin):
     list_display = ('thumbnail_tag', 'name', 'jcreated_at', 'is_active')
     list_filter = ('is_active', 'updated_at')
     search_fields = ('creature', 'name', 'description', 'tags')
     exclude = ('slug', 'thumbnail')
+    actions = (make_active, make_unactive)
 
 
 class BookAdminModel(admin.ModelAdmin):
@@ -42,6 +80,7 @@ class PageAdminModel(admin.ModelAdmin):
     search_fields = ('name', 'description', 'tags')
     exclude = ('slug', 'thumbnail')
 
+bookstack_admin.disable_action('delete_selected')
 
 bookstack_admin.register(Shelve, ShelveAdminModel)
 bookstack_admin.register(Book, BookAdminModel)
