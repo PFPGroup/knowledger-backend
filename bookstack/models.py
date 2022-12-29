@@ -30,16 +30,16 @@ class Shelve(models.Model):
         verbose_name_plural = 'قفسه ها'
     
     def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = slugify(self.name)
-            
-        # if self.id:
-        #     old_obj = Shelve.objects.only('image', 'thumbnail').get(id=self.id)
+        self.slug = slugify(self.name)
+        
+        if self.id:
+            old_obj = self.__class__.objects.get(id=self.id)
+            if self.image.name == old_obj.image.name:
+                self.image = old_obj.image
+                return super().save(*args, **kwargs)
         
         self.thumbnail = create_thumbnail(self.image, username=self.creature.username)
         self.image = compress_image(self.thumbnail, username=self.creature.username)
-        # if os.path.exists(old_obj.image.path):
-        #     os.remove(old_obj.image.path)
         return super().save(*args, **kwargs)
     
     def delete(self, using=None, keep_parents=None):
@@ -84,8 +84,14 @@ class Book(models.Model):
         if not self.slug:
             self.slug = slugify(self.name)
         
+        if self.id:
+            old_obj = self.__class__.objects.get(id=self.id)
+            if self.image.name == old_obj.image.name:
+                self.image = old_obj.image
+                return super().save(*args, **kwargs)
+        
         self.thumbnail = create_thumbnail(self.image, username=self.creature.username)
-        self.image = compress_image(self.image, username=self.creature.username)
+        self.image = compress_image(self.thumbnail, username=self.creature.username)
         return super().save(*args, **kwargs)
     
     def delete(self, using=None, keep_parents=None):
@@ -159,14 +165,20 @@ class Page(models.Model):
 class PageImage(models.Model):
     creature = models.ForeignKey(User , on_delete=models.SET_NULL, null=True, verbose_name='ایجاد کننده')
     image = models.ImageField(upload_to='pages/', verbose_name='عکس')
-    thumbnail = models.ImageField(upload_to='pages/thumbnail', verbose_name='عکس کوچک شده')
+    thumbnail = models.ImageField(upload_to='pages/thumbnail', blank=True, verbose_name='عکس کوچک شده')
     
     def __str__(self) -> str:
         return self.creature.username
     
     def save(self, *args, **kwargs):
-        self.thumbnail = create_thumbnail(self.image, self.creature.username, self.id)
-        self.image = compress_image(self.image, self.creature.username, self.id)
+        if self.id:
+            old_obj = self.__class__.objects.get(id=self.id)
+            if self.image.name == old_obj.image.name:
+                self.image = old_obj.image
+                return super().save(*args, **kwargs)
+        
+        self.thumbnail = create_thumbnail(self.image, username=self.creature.username)
+        self.image = compress_image(self.thumbnail, username=self.creature.username)
         return super().save(*args, **kwargs)
 
     def delete(self, using=None, keep_parents=None):
