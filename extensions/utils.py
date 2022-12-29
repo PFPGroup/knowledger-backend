@@ -83,7 +83,6 @@ def create_thumbnail(image, username, size=(240, 240)):
     thumbnail = File(thumb_io, name=name)
     return thumbnail
 
-
 def check_client_ip(instance, ip):
     BookViews = apps.get_model('bookstack.BookViews')
     ip_obj, created = BookViews.objects.get_or_create(ip_address=ip)
